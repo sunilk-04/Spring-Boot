@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/bootstrap.js}"></script>
+    <script th:src="@{/js/jquery.min.js}"></script>
+</head>
+<body>
+<div class="container p-3">
+    <h3>Welcome to Homepage</h3>
+    User: <span sec:authentication="name"></span>
+    <br><br>
+    Role(s): <span sec:authentication="principal.authorities"></span>
+    <br><br>
+    <div th:if="${session.user}">
+        <p th:text="'Firstname: ' + ${session.user.firstName} + ', Lastname: ' + ${session.user.lastName} + ', Email: ' + ${session.user.email}"></p>
+    </div>
+    <div sec:authorize="hasRole('ROLE_MANAGER')">
+        <p>Leadership Meeting (Only for managers)</p>
+    </div>
+
+    <div sec:authorize="hasRole('ROLE_ADMIN')">
+        <p>IT Systems Meeting (Only for admins)</p>
+    </div>
+    <hr/>
+    <form th:action="@{/logout}" method="POST">
+        <div class="form-group">
+            <div class="col-sm-6 controls">
+                <input type="submit" class="btn btn-danger" value="Logout"/>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

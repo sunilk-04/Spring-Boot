@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/bootstrap.js}"></script>
+    <script th:src="@{/js/jquery.min.js}"></script>
+
+</head>
+<body>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8 p-3 border">
+            <h3 class="text-primary">Login</h3>
+            <hr/>
+            <form th:action="@{/authenticate}" method="POST">
+                <div th:if="${param.logout}" class="card bg-info text-white">
+                    <div class="card-body">You have been logged out.</div>
+                </div>
+                <div th:if="${param.error}" class="card bg-danger text-white">
+                    <div class="card-body">Invalid username or password.</div>
+                </div>
+                <div class="mb-3 mt-3">
+                    <label for="userName" class="form-label">Username:</label>
+                    <input type="text" class="form-control" id="userName" placeholder="Enter username" name="username">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter password"
+                           name="password">
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-outline-primary">Login</button>
+                    <br/><br/>
+                    <a th:href="@{/register/show}" class="text-decoration-none">Register new user</a>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+</div>
+</body>
+</html>
