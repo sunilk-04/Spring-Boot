@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thymeleaf demo</title>
+
+    <!-- Reference .css file -->
+    <!-- Here '@' references to context path of an application (App root) -->
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<p th:text="'Time on the server is : ' + ${theDate}" class="test"/>
+</body>
+</html>
