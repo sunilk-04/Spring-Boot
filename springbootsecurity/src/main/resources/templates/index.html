@@ -11,30 +11,40 @@
     <script th:src="@{/js/jquery.min.js}"></script>
 </head>
 <body>
+<div th:unless="${session.user}">
+    <meta http-equiv="refresh" content="0; URL='/login'">
+</div>
 <div class="container p-3">
     <h3>Welcome to Homepage</h3>
-    User: <span sec:authentication="name"></span>
-    <br><br>
-    Role(s): <span sec:authentication="principal.authorities"></span>
-    <br><br>
+    <div th:if="${session.user}">
+        User: <span sec:authentication="name"></span>
+        <br><br>
+        Role(s): <span sec:authentication="principal.authorities"></span>
+        <br><br>
+    </div>
     <div th:if="${session.user}">
         <p th:text="'Firstname: ' + ${session.user.firstName} + ', Lastname: ' + ${session.user.lastName} + ', Email: ' + ${session.user.email}"></p>
     </div>
     <div sec:authorize="hasRole('ROLE_MANAGER')">
-        <p>Leadership Meeting (Only for managers)</p>
+        <p>Leadership Meeting (Only for managers and admins)</p>
     </div>
 
     <div sec:authorize="hasRole('ROLE_ADMIN')">
         <p>IT Systems Meeting (Only for admins)</p>
     </div>
+
+    <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
+        <a th:href="@{/employees/list}" class="text-decoration-none">List of employees</a>
+    </div>
     <hr/>
-    <form th:action="@{/logout}" method="POST">
+    <form action="#" th:action="@{/logout}" method="POST">
         <div class="form-group">
             <div class="col-sm-6 controls">
                 <input type="submit" class="btn btn-danger" value="Logout"/>
             </div>
         </div>
     </form>
+    <hr/>
 </div>
 </body>
 </html>
