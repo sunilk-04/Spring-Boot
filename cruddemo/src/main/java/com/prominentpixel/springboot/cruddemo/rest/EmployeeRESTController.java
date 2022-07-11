@@ -1,5 +1,8 @@
 package com.prominentpixel.springboot.cruddemo.rest;
 
+// Uncomment below code if you don't want to use Spring data REST
+
+/*
 import com.prominentpixel.springboot.cruddemo.dao.EmployeeRepository;
 import com.prominentpixel.springboot.cruddemo.entity.Employee;
 import com.prominentpixel.springboot.cruddemo.service.EmployeeService;
@@ -12,10 +15,14 @@ import java.util.List;
 @RequestMapping("/api")
 public class EmployeeRESTController {
 
-    /* private EmployeeService employeeService; */
+    */
+/* private EmployeeService employeeService; *//*
+
     private EmployeeServiceJPARepo employeeServiceJPARepo;
 
-    public EmployeeRESTController(/* EmployeeService employeeService ,*/ EmployeeServiceJPARepo employeeServiceJPARepo) {
+    public EmployeeRESTController(*/
+/* EmployeeService employeeService ,*//*
+ EmployeeServiceJPARepo employeeServiceJPARepo) {
         // this.employeeService = employeeService;
         this.employeeServiceJPARepo = employeeServiceJPARepo;
     }
@@ -65,3 +72,4 @@ public class EmployeeRESTController {
         return "Deleted employee id : " + employeeId;
     }
 }
+*/
