@@ -1,0 +1,2 @@
+INSERT INTO employees(name, role, project) VALUES('techgeeknext-user1', 'Developer', 'Flyway-Project1');
+INSERT INTO employees(name, role, project) VALUES('techgeeknext-user2', 'SME', 'Flyway-Project2');
