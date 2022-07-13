@@ -13,7 +13,7 @@ public class Tasks {
     private static Logger logger = Logger.getLogger(Tasks.class.getName());
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(cron = "*/5 * 8-11 * * *") // Runs every 5 seconds between 8AM and 11AM
+    @Scheduled(cron = "*/5 * 8-11 * * *") // Runs every 5 seconds between 8AM and 11AM daily
     public void reportCurrentTime() {
         logger.info("Time is now : " + dateFormat.format(new Date()));
     }
