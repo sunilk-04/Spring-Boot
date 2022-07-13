@@ -40,6 +40,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>net.snowflake</groupId>-->
+<!--			<artifactId>snowflake-jdbc</artifactId>-->
+<!--			<version>3.13.20</version>-->
+<!--			<scope>system</scope>-->
+<!--			<systemPath>${project.basedir}/src/main/resources/snowflake-jdbc-3.13.20.jar</systemPath>-->
+<!--		</dependency>-->
 	</dependencies>
 	<build>
 		<plugins>
