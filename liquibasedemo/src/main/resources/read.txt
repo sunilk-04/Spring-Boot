@@ -1,0 +1,4 @@
+Commands of maven :
+
+liquibase:generateChangeLog (To generate changelog)
+liquibase:updateSQL (To generate sql based on properties file of liquibase)
