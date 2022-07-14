@@ -44,10 +44,10 @@ public class JpawithdynamicqueryApplication implements CommandLineRunner {
         idsToSearch.add(4);
         System.out.println("Students which have ids 1, 2 and 4 (Sort by name) : " + this.studentService.getByIds(idsToSearch, "name"));
 
-		// Deactivate student with id 3 and 5
-		this.studentService.deactivate(3);
+        // Deactivate student with id 3 and 5
+        this.studentService.deactivate(3);
         this.studentService.deactivate(5);
-		System.out.println("Active student ids : " + this.studentService.getActiveIds());
+        System.out.println("Active student ids : " + this.studentService.getActiveIds());
 
         // Activate student with id 5
         this.studentService.activate(5);
