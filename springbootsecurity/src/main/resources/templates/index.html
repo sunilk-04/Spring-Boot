@@ -34,7 +34,8 @@
     </div>
 
     <div sec:authorize="hasRole('ROLE_EMPLOYEE')">
-        <a th:href="@{/employees/list}" class="text-decoration-none">List of employees</a>
+        <a th:href="@{/employees/list}" class="text-decoration-none">List of employees</a> <br/><br/>
+        <a th:href="@{/loggedUsers}" class="text-decoration-none">Currently logged in users</a>
     </div>
     <hr/>
     <form action="#" th:action="@{/logout}" method="POST">

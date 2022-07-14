@@ -25,7 +25,7 @@ public class Security extends WebSecurityConfigurerAdapter {
         httpSecurity.authorizeRequests().antMatchers("/employees/show*").hasAnyRole("MANAGER", "ADMIN")
                 .antMatchers("/employees/save*").hasAnyRole("MANAGER", "ADMIN")
                 .antMatchers("/employees/delete").hasRole("ADMIN")
-                .antMatchers("/employees/**").hasRole("EMPLOYEE")
+                .antMatchers("/employees/**", "/loggedUsers").hasRole("EMPLOYEE")
                 .antMatchers("/resources/**").permitAll()
                 .and().formLogin().loginPage("/login").loginProcessingUrl("/authenticate")
                 .successHandler(this.userAuthenticationSuccessHandler).permitAll()
