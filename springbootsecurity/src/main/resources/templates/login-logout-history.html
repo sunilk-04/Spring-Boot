@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login/logout history</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<div class="container mt-3">
+    <h3 class="text-dark mb-2">Login/Logout History</h3>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Username</th>
+            <th>Timestamp</th>
+            <th>Operation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${history}">
+            <td th:text="${row.userName}"/>
+            <td th:text="${row.time}"/>
+            <td th:text="${row.operation}"/>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/}" class="text-decoration-none">Back to home page</a>
+</div>
+</body>
+</html>

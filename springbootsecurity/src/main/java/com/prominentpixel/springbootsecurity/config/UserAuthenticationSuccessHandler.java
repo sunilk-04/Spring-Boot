@@ -1,6 +1,7 @@
 package com.prominentpixel.springbootsecurity.config;
 
 import com.prominentpixel.springbootsecurity.entity.User;
+import com.prominentpixel.springbootsecurity.service.LoginLogoutService;
 import com.prominentpixel.springbootsecurity.service.UserService;
 import com.prominentpixel.springbootsecurity.user.ActiveUserStore;
 import com.prominentpixel.springbootsecurity.user.LoggedUser;
@@ -25,6 +26,9 @@ public class UserAuthenticationSuccessHandler implements AuthenticationSuccessHa
     @Autowired
     private ActiveUserStore activeUserStore;
 
+    @Autowired
+    private LoginLogoutService loginLogoutService;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
         AuthenticationSuccessHandler.super.onAuthenticationSuccess(request, response, chain, authentication);
@@ -40,6 +44,7 @@ public class UserAuthenticationSuccessHandler implements AuthenticationSuccessHa
             loggedUser.setActiveUserStore(this.activeUserStore);
             session.setAttribute("user", user);
             session.setAttribute("loggedUser", loggedUser);
+            this.loginLogoutService.save("login");
         }
         response.sendRedirect(request.getContextPath() + "/");
     }

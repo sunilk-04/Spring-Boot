@@ -17,20 +17,30 @@ public class Security extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserAuthenticationSuccessHandler userAuthenticationSuccessHandler;
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    UserLogoutHandler userLogoutHandler;
+
+    @Autowired
+    UserLogoutSuccessHandler userLogoutSuccessHandler;
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests().antMatchers("/employees/show*").hasAnyRole("MANAGER", "ADMIN")
                 .antMatchers("/employees/save*").hasAnyRole("MANAGER", "ADMIN")
                 .antMatchers("/employees/delete").hasRole("ADMIN")
-                .antMatchers("/employees/**", "/loggedUsers").hasRole("EMPLOYEE")
+                .antMatchers("/employees/**", "/loggedUsers", "/history").hasRole("EMPLOYEE")
                 .antMatchers("/resources/**").permitAll()
                 .and().formLogin().loginPage("/login").loginProcessingUrl("/authenticate")
                 .successHandler(this.userAuthenticationSuccessHandler).permitAll()
                 .and()
-                .logout().permitAll()
+                .logout()
+                .addLogoutHandler(this.userLogoutHandler)
+                .logoutSuccessHandler(this.userLogoutSuccessHandler)
+                .permitAll()
                 .and()
                 .exceptionHandling().accessDeniedPage("/access-denied");
     }
