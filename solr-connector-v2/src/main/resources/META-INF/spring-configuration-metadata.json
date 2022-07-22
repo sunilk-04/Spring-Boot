@@ -1,0 +1,12 @@
+{
+  "properties": [
+    {
+      "name": "solr-host",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "solr-port",
+      "type": "java.lang.Integer"
+    }
+  ]
+}
