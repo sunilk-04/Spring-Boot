@@ -107,11 +107,19 @@ public class SolrController {
 
     private void addOrUpdate(String id, SolrDocument solrDocument, boolean shouldUpdate) throws SolrServerException, IOException {
         SolrInputDocument document = new SolrInputDocument();
-        solrDocument.forEach((key, value) -> document.addField(key, value));
-        document.remove("_version_"); // To prevent user changing the version
         if (shouldUpdate) {
-            document.setField("id", id);
+            try {
+                SolrDocument doc = this.client.query(new SolrQuery("id:" + id)).getResults().get(0);
+                solrDocument.forEach((key, value) -> doc.setField(key, value));
+                doc.setField("id", id); // To prevent user changing the id
+                doc.forEach((key, value) -> document.addField(key, value));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            solrDocument.forEach((key, value) -> document.addField(key, value));
         }
+        document.remove("_version_"); // To prevent user changing the version
         new UpdateRequest().add(document).setAction(UpdateRequest.ACTION.COMMIT, false, false).process(this.client);
     }
 }
