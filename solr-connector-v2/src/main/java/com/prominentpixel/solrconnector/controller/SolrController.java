@@ -108,6 +108,7 @@ public class SolrController {
     private void addOrUpdate(String id, SolrDocument solrDocument, boolean shouldUpdate) throws SolrServerException, IOException {
         SolrInputDocument document = new SolrInputDocument();
         solrDocument.forEach((key, value) -> document.addField(key, value));
+        document.remove("_version_"); // To prevent user changing the version
         if (shouldUpdate) {
             document.setField("id", id);
         }
