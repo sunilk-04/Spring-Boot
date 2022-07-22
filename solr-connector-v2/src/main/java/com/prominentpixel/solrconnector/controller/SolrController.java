@@ -57,25 +57,6 @@ public class SolrController {
                 .setFields(fields)).getResults();
     }
 
-    //    @Operation(summary = "Uploads and indexes an xml document.", description = "Uploads and indexes an xml document.")
-    //    @PostMapping("/docs/upload")
-    //    public void upload(@PathVariable String collection,
-    //                       @Parameter(description = "URL of an xml file to upload.") @RequestParam(value = "file") String fileUrl) throws IOException, URISyntaxException, SolrServerException {
-    //        this.connect(collection);
-    //        File fileToUpload = new File("documents.xml");
-    //        FileUtils.copyURLToFile(new URL(fileUrl), fileToUpload);
-    //        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/request");
-    //        request.addFile(fileToUpload, "text/xml");
-    //        this.client.request(request);
-    //        this.client.commit();
-    //        fileToUpload.delete();
-    //    }
-    //
-    //    @GetMapping(path = "/xml", produces = "application/xml")
-    //    public String showXml(@RequestParam(value = "file") String fileUrl) throws IOException {
-    //        return new Scanner(new URL(fileUrl).openStream(), "UTF-8").useDelimiter("\\A").next();
-    //    }
-
     @Operation(summary = "Gets a document by id.", description = "Gets a document by id.")
     @GetMapping("/docs/{id}")
     public SolrDocument get(@PathVariable String collection, @PathVariable String id) {
