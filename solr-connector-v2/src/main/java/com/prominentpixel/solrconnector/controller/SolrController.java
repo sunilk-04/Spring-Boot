@@ -1,29 +1,24 @@
 package com.prominentpixel.solrconnector.controller;
 
+import com.google.gson.GsonBuilder;
 import com.prominentpixel.solrconnector.provider.SolrClientProvider;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrInputDocument;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.solr.client.solrj.SolrQuery.ORDER.asc;
-import static org.apache.solr.client.solrj.SolrQuery.ORDER.desc;
-
-@RestController
-@RequestMapping("/api/solr/{collection}")
+@Controller
 @SuppressWarnings("all")
-@Tag(name = "Solr", description = "Solr connector")
 public class SolrController {
 
     @Value("${solr-host}")
@@ -32,94 +27,40 @@ public class SolrController {
     @Value("${solr-port}")
     private int port;
 
-    private SolrClient client;
+    @Autowired
+    private Environment environment;
 
-    private void connect(String collection) {
-        this.client = SolrClientProvider.getInstance("http://" + this.host + ":" + this.port + "/solr/" + collection).getSolrClient();
+    @GetMapping("/")
+    public String home(Model model, @RequestParam(name = "collection", defaultValue = "") String collection) throws SolrServerException, IOException {
+        String url = "http://" + this.host + ":" + this.port + "/solr/";
+        SolrClientProvider provider = SolrClientProvider.getInstance(url);
+        model.addAttribute("collections", provider.getCollections());
+        model.addAttribute("fields", collection.equals("") ? new ArrayList<>() : provider.getFields(collection, url));
+        return "index";
     }
 
-    @PreDestroy
-    private void close() throws IOException {
-        this.client.close();
-    }
-
-    @Operation(summary = "Gets all the documents.", description = "Gets all the documents.")
-    @GetMapping("/docs")
-    public List getAll(@PathVariable String collection,
-                       @Parameter(description = "Rows to return") @RequestParam(value = "rows", required = false, defaultValue = "20") Integer rows,
-                       @Parameter(description = "Field to sort") @RequestParam(value = "sb", required = false, defaultValue = "id") String sortBy,
-                       @Parameter(description = "Sort by in a specific order") @RequestParam(value = "order", required = false, defaultValue = "asc") String order,
-                       @Parameter(description = "Fields to list") @RequestParam(value = "fl", required = false, defaultValue = "*") String fields) throws Exception {
-        this.connect(collection);
-        return this.client.query(new SolrQuery("*:*")
-                .setRows(rows)
-                .addSort(sortBy, order.toLowerCase().equals("asc") ? asc : desc)
-                .setFields(fields)).getResults();
-    }
-
-    @Operation(summary = "Gets a document by id.", description = "Gets a document by id.")
-    @GetMapping("/docs/{id}")
-    public SolrDocument get(@PathVariable String collection, @PathVariable String id) {
-        this.connect(collection);
-        try {
-            return this.client.query(new SolrQuery("id:" + id)).getResults().get(0);
-        } catch (Exception e) {
-            return null;
+    @GetMapping("/query")
+    public String execute(@RequestParam(name = "fields", defaultValue = "") String field,
+                          @RequestParam(name = "query", defaultValue = "") String query,
+                          @RequestParam(name = "collections", defaultValue = "") String collection,
+                          @RequestParam(name = "rows", defaultValue = "20") Integer rows,
+                          Model model) throws Exception {
+        String url = "http://" + this.host + ":" + this.port + "/solr/";
+        SolrClient client = SolrClientProvider.getInstance(url + collection).getSolrClient();
+        SolrClientProvider provider = SolrClientProvider.getInstance(url);
+        model.addAttribute("collections", provider.getCollections());
+        model.addAttribute("fields", collection.equals("") ? new ArrayList<>() : provider.getFields(collection, url));
+        if (!(field.equals("") || query.equals(""))) {
+            RestTemplate template = new RestTemplate();
+            String restUrl = "http://" + this.host + ":" + this.environment.getProperty("local.server.port") + "/api/solr/" + collection + "/docs/select?q=" + field + ":" + query + "&rows=" + rows;
+            List result = template.getForObject(restUrl, List.class);
+            model.addAttribute("result", this.preetify(result));
         }
+        client.close();
+        return "index";
     }
 
-    @Operation(summary = "Deletes a document by id.", description = "Deletes a document by id.")
-    @DeleteMapping("/docs/{id}")
-    public void delete(@PathVariable String collection, @PathVariable String id) throws SolrServerException, IOException {
-        this.connect(collection);
-        this.client.deleteById(String.valueOf(id));
-        this.client.commit();
-    }
-
-    @Operation(summary = "Updates a document by id.", description = "Updates a document by id.")
-    @PutMapping("/docs/{id}")
-    public void update(@PathVariable String collection, @PathVariable String id, @RequestBody SolrDocument requestBody) throws SolrServerException, IOException {
-        this.connect(collection);
-        this.addOrUpdate(id, requestBody, true);
-    }
-
-    @Operation(summary = "Adds a document.", description = "Adds a document.")
-    @PostMapping("/docs")
-    public void add(@PathVariable String collection, @RequestBody SolrDocument requestBody) throws SolrServerException, IOException {
-        this.connect(collection);
-        this.addOrUpdate(null, requestBody, false);
-    }
-
-    @Operation(summary = "Queries from the documents.", description = "Queries from the documents.")
-    @GetMapping("/docs/select")
-    public List query(@PathVariable String collection,
-                      @Parameter(description = "Query to perform (Format : field:value)", required = true) @RequestParam("q") String query,
-                      @Parameter(description = "Rows to return") @RequestParam(value = "rows", required = false, defaultValue = "20") Integer rows,
-                      @Parameter(description = "Field to sort") @RequestParam(value = "sb", required = false, defaultValue = "id") String sortBy,
-                      @Parameter(description = "Sort by in a specific order") @RequestParam(value = "order", required = false, defaultValue = "asc") String order,
-                      @Parameter(description = "Fields to list") @RequestParam(value = "fl", required = false, defaultValue = "*") String fields) throws Exception {
-        this.connect(collection);
-        return this.client.query(new SolrQuery(query)
-                .setRows(rows)
-                .addSort(sortBy, order.toLowerCase().equals("asc") ? asc : desc)
-                .setFields(fields)).getResults();
-    }
-
-    private void addOrUpdate(String id, SolrDocument solrDocument, boolean shouldUpdate) throws SolrServerException, IOException {
-        SolrInputDocument document = new SolrInputDocument();
-        if (shouldUpdate) {
-            try {
-                SolrDocument doc = this.client.query(new SolrQuery("id:" + id)).getResults().get(0);
-                solrDocument.forEach((key, value) -> doc.setField(key, value));
-                doc.setField("id", id); // To prevent user changing the id
-                doc.forEach((key, value) -> document.addField(key, value));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            solrDocument.forEach((key, value) -> document.addField(key, value));
-        }
-        document.remove("_version_"); // To prevent user changing the version
-        new UpdateRequest().add(document).setAction(UpdateRequest.ACTION.COMMIT, false, false).process(this.client);
+    private String preetify(List response) throws Exception {
+        return new GsonBuilder().setPrettyPrinting().create().toJson(response);
     }
 }

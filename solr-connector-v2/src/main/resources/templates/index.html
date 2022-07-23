@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style type="text/css">
+        #result-div {
+            width: auto;
+            height: min-content;
+        }
+    </style>
+    <script th:src="@{/js/bootstrap.js}"></script>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script type="text/javascript">
+        function setCollection() {
+            const collectionInput = document.getElementById('collections');
+            window.location.href = window.location.href.split('?')[0].replace("query", "") + "?collection=" + collectionInput.value;
+        }
+
+        function setField() {
+            const fieldInput = document.getElementById('fields');
+            const queryInput = document.getElementById('query');
+            const rowsInput = document.getElementById('rows');
+            const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+            if ((params.collection != null || params.collection !== "") && (params.fields == null || params.fields === "")) {
+                window.location.href = window.location.href + "&field=" + fieldInput.value + "&rows=" + rowsInput.value;
+            }
+            queryInput.value = '';
+            rowsInput.value = 20;
+            document.getElementById('result').innerHTML = '';
+        }
+
+        function load() {
+            const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+            const fieldVal = params.field;
+            const collectionVal = params.collection;
+            const queryVal = params.query;
+            const rowsVal = params.rows;
+
+            const collectionInput = document.getElementById('collections');
+            const fieldInput = document.getElementById('fields');
+            const queryInput = document.getElementById('query');
+            const rowsInput = document.getElementById('rows');
+
+            collectionInput.value = (collectionVal === undefined) ? params.collections : collectionVal;
+            fieldInput.value = (fieldVal === undefined) ? params.fields : params.field;
+            queryInput.value = (queryVal === undefined) ? "" : queryVal;
+            rowsInput.value = (rowsVal === undefined) ? 20 : rowsVal;
+
+            if (collectionInput.value === '' || collectionInput.value == null) {
+                document.getElementById('fields-div').style.display = 'none';
+                document.getElementById('query-div').style.display = 'none';
+                document.getElementById('rows-div').style.display = 'none';
+                document.getElementById('execute').style.display = 'none';
+            } else {
+                if (fieldInput.value === '' || fieldInput.value == null) {
+                    document.getElementById('query-div').style.display = 'none';
+                    document.getElementById('rows-div').style.display = 'none';
+                    document.getElementById('execute').style.display = 'none';
+                }
+            }
+        }
+
+        function setQueryAndSubmit() {
+            const collectionInput = document.getElementById('collections');
+            const fieldInput = document.getElementById('fields');
+            const queryInput = document.getElementById('query');
+            const rowsInput = document.getElementById('rows');
+            window.location.href = window.location.href.split('?')[0] + "?collection=" + collectionInput.value +
+                "&field=" + fieldInput.value + "&query=" + queryInput.value + "&rows=" + rowsInput.value;
+        }
+
+        function copyResponse() {
+            navigator.clipboard.writeText(document.getElementById('result').innerHTML);
+            const message = document.querySelector('#copy-message');
+            message.style.display = "block"
+            setTimeout(() => {
+                message.style.display = "none"
+            }, 3000)
+        }
+    </script>
+</head>
+<body onload="load()">
+<div class="container p-3">
+    <a th:href="@{/swagger-ui/index.html}">Swagger</a>
+</div>
+<div class="container ps-3 pe-3">
+    <form action="#" th:action="@{/query}" method="GET" onsubmit="setQueryAndSubmit()">
+        <div class="row">
+            <div class="mt-2 mb-2 col-3" id="collection-div">
+                <label for="collections" class="form-label">Collection :</label>
+                <select class="form-select" id="collections" name="collections" onchange="setCollection()">
+                    <option name="collection" th:each="collection : ${collections}" th:value="${collection}"
+                            th:text="${collection}"></option>
+                </select>
+            </div>
+            <div class="mt-2 mb-2 col-3" id="fields-div">
+                <label for="fields" class="form-label">Field :</label>
+                <select class="form-select" id="fields" name="fields" onchange="setField()">
+                    <option name="field" th:each="field : ${fields}" th:value="${field}" th:text="${field}"></option>
+                </select>
+            </div>
+            <div class="mt-2 mb-2 col-3" id="query-div">
+                <label for="query" class="form-label">Query :</label>
+                <input type="text" class="form-control" id="query" placeholder="Enter query" name="query"/>
+            </div>
+            <div class="mt-2 mb-2 col-3" id="rows-div">
+                <label for="rows" class="form-label">Rows :</label>
+                <input type="number" class="form-control" id="rows" min="0" placeholder="Enter rows to display"
+                       value="20" name="rows"/>
+            </div>
+        </div>
+        <div class="mt-2 mb-2">
+            <button type="submit" id="execute" class="btn btn-outline-primary">Execute</button>
+        </div>
+    </form>
+</div>
+<div class="container mt-3 p-2" id="result-div">
+    <h5>Result :</h5>
+    <button class="btn-sm btn-secondary mb-2" onclick="copyResponse()">Copy</button>
+    <i id="copy-message" class="text-success mb-2" style="display:none">Response has been copied to clipboard.</i>
+    <pre id="formattedResult"><span id="result" th:text="${result}"/></pre>
+</div>
+</body>
+</html>
